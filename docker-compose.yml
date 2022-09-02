@@ -1,0 +1,126 @@
+version: "3"
+services:
+  # Organizr: Web Interface to link together all services
+  organizr:
+    container_name: organizr
+    image: organizr/organizr:latest
+    restart: unless-stopped
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${ROOT}/config/organizr:/config
+    ports:
+      - 8079:80
+  # sabNZB: NZB Downloader client
+  sabnzbd:
+    container_name: sabnzbd
+    image: linuxserver/sabnzbd:latest
+    restart: unless-stopped
+    environment:
+      - PUID=${PUID} 
+      - PGID=${PGID} 
+      - TZ=${TZ}
+    volumes:
+      - /home/carson/media_local/usenet:/data/usenet # download folder
+      - ${ROOT}/config/sabnzbd:/config 
+    ports:
+      - 8080:8080
+  # Sonarr: Auto download new episodes of TV
+  sonarr:
+    container_name: sonarr
+    image: linuxserver/sonarr:latest
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - PUID=${PUID} 
+      - PGID=${PGID} 
+      - TZ=${TZ} 
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${ROOT}/config/sonarr:/config 
+      - ${ROOT}:/data 
+      - /home/carson/media_local/usenet:/usenet
+  # Radarr: Auto download new Movies
+  radarr:
+    container_name: radarr
+    image: linuxserver/radarr:latest
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      - PUID=${PUID} 
+      - PGID=${PGID} 
+      - TZ=${TZ} 
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${ROOT}/config/radarr:/config 
+      - ${ROOT}/complete/movies:/movies
+      - ${ROOT}:/data 
+      - /home/carson/media_local/usenet:/usenet
+  # Jellyfin: Media Server like Plex
+  jellyfin:
+    container_name: jellyfin
+    image: jellyfin/jellyfin:latest
+    restart: unless-stopped
+    group_add:
+      - "106"
+    devices:
+      - /dev/dri/renderD128:/dev/dri/renderD128
+      - /dev/dri/card0:/dev/dri/card0
+    environment: 
+      - PUID=${PUID} 
+      - PGID=${PGID} 
+      - JELLYFIN_PublishedServerUrl=https://hub.carsonferreira.com/jellyfin
+    network_mode: "host"
+    volumes:
+      - ${ROOT}/config/jellyfin/config:/config
+      - /home/carson/media_local/jellyfin_cache:/cache
+      - ${ROOT}/media:/data/media
+  # Ombi: Request system in order to ask for a show/movie to be downloaded
+  ombi:
+    container_name: ombi
+    image: lscr.io/linuxserver/ombi:latest
+    restart: unless-stopped
+    environment:
+      - PUID=${PUID} 
+      - PGID=${PGID} 
+      - TZ=${TZ}
+      - BASE_URL=/ombi
+    volumes:
+      - ${ROOT}/config/ombi:/config
+    ports:
+      - 5000:3579
+  # VPN to Mullvad for safe torrenting
+  openvpn:
+    container_name: openvpn
+    image: dperson/openvpn-client:latest
+    cap_add:
+     - net_admin
+    restart: unless-stopped
+    volumes:
+     - /dev/net:/dev/net:z
+     - ${ROOT}/config/openvpn:/vpn
+    sysctls:
+     - net.ipv6.conf.all.disable_ipv6=0
+    security_opt:
+     - label:disable
+    ports:
+     - 8112:8112
+     - 6881:6881
+     - 6881:6881/udp
+    command: "-r 192.168.0.0/24"
+  # Torrent Client, connected to VPN client above
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    network_mode: service:openvpn
+    environment:
+      - PUID=${PUID} 
+      - PGID=${PGID} 
+      - TZ=${TZ}
+      - WEBUI_PORT=8112
+    volumes:
+      - ${ROOT}/config/qbittorrent:/config
+      - /home/carson/Synology/Torrents:/downloads
+    restart: unless-stopped
