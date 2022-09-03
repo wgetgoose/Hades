@@ -136,7 +136,7 @@ services:
       - WEBUI_PORT=8112
     volumes:
       - ${LOCAL}/config/qbittorrent:/config
-      - ${NAS}/torrents:/downloads
+      - ${NAS}/torrents:/data/torrents
     restart: unless-stopped
   jackett:
     image: lscr.io/linuxserver/jackett:latest
