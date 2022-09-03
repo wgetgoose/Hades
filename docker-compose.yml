@@ -27,7 +27,7 @@ services:
       - PGID=${PGID}
       - TZ=${TZ}
     volumes:
-      - ${NAS}/config/organizr:/config
+      - ${LOCAL}/config/organizr:/config
     ports:
       - 8079:80
   # sabNZB: NZB Downloader client
@@ -40,8 +40,8 @@ services:
       - PGID=${PGID} 
       - TZ=${TZ}
     volumes:
-      - ${LOCAL}/usenet:/data/usenet # download folder
-      - ${NAS}/config/sabnzbd:/config 
+      - ${NAS}/usenet:/data/usenet
+      - ${LOCAL}/config/sabnzbd:/config 
     ports:
       - 8080:8080
   # Sonarr: Auto download new episodes of TV
@@ -56,9 +56,10 @@ services:
       - TZ=${TZ} 
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${NAS}/config/sonarr:/config 
-      - ${NAS}:/data 
-      - ${LOCAL}/usenet:/usenet
+      - ${LOCAL}/config/sonarr:/config 
+      - ${NAS}:/data
+    ports:
+      - 8989:8989
   # Radarr: Auto download new Movies
   radarr:
     container_name: radarr
@@ -71,10 +72,10 @@ services:
       - TZ=${TZ} 
     volumes:
       - /etc/localtime:/etc/localtime:ro
-      - ${NAS}/config/radarr:/config 
-      - ${NAS}/complete/movies:/movies
-      - ${NAS}:/data 
-      - ${LOCAL}/usenet:/usenet
+      - ${LOCAL}/config/radarr:/config 
+      - ${NAS}:/data
+    ports:
+      - 7878:7878
   # Jellyfin: Media Server like Plex
   jellyfin:
     container_name: jellyfin
@@ -101,7 +102,7 @@ services:
       - TZ=${TZ}
       - BASE_URL=/ombi
     volumes:
-      - ${NAS}/config/ombi:/config
+      - ${LOCAL}/config/ombi:/config
     ports:
       - 5000:3579
   # VPN to Mullvad for safe torrenting
@@ -113,7 +114,7 @@ services:
     restart: unless-stopped
     volumes:
      - /dev/net:/dev/net:z
-     - ${NAS}/config/openvpn:/vpn
+     - ${LOCAL}/config/openvpn:/vpn
     sysctls:
      - net.ipv6.conf.all.disable_ipv6=0
     security_opt:
@@ -134,6 +135,18 @@ services:
       - TZ=${TZ}
       - WEBUI_PORT=8112
     volumes:
-      - ${NAS}/config/qbittorrent:/config
-      - /home/carson/Synology/Torrents:/downloads
+      - ${LOCAL}/config/qbittorrent:/config
+      - ${NAS}/torrents:/downloads
+    restart: unless-stopped
+  jackett:
+    image: lscr.io/linuxserver/jackett:latest
+    container_name: jackett
+    environment:
+      - PUID=${PUID} 
+      - PGID=${PGID} 
+      - TZ=${TZ}
+    volumes:
+      - ${LOCAL}/config/jackett:/config
+    ports:
+      - 9117:9117
     restart: unless-stopped
