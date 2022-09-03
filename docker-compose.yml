@@ -88,7 +88,7 @@ services:
       - 8096:8096
     network_mode: "host"
     volumes:
-      - ${LOCAL}/configs/jellyfin:/config
+      - ${LOCAL}/config/jellyfin:/config
       - ${LOCAL}/jellyfin_cache:/cache
       - ${NAS}/media:/data/media
   # Ombi: Request system in order to ask for a show/movie to be downloaded
