@@ -76,6 +76,19 @@ services:
       - ${NAS}:/data
     ports:
       - 7878:7878
+    lidarr:
+      container_name:
+      environment:
+        - PUID=1000
+        - PGID=1000
+        - TZ=${TZ}
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - ${LOCAL}/config/lidarr:/config 
+      - ${NAS}:/data
+    ports:
+      - 8686:8686
+    restart: unless-stopped 
   # Jellyfin: Media Server like Plex
   jellyfin:
     container_name: jellyfin
