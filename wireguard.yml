@@ -26,13 +26,13 @@ services:
     sysctls:
       - net.ipv4.conf.all.src_valid_mark=1
     restart: unless-stopped
-  openvpn:
-    cap_add:
-      - NET_ADMIN
-    image: kylemanna/openvpn
-    container_name: openvpn-server
-    ports:
-      - "1194:1194/udp"
-    restart: unless-stopped
-    volumes:
-      - ./openvpn-data/conf:/etc/openvpn
+  # openvpn:
+  #   cap_add:
+  #     - NET_ADMIN
+  #   image: kylemanna/openvpn
+  #   container_name: openvpn-server
+  #   ports:
+  #     - "1194:1194/udp"
+  #   restart: unless-stopped
+  #   volumes:
+  #     - ./openvpn-data/conf:/etc/openvpn
