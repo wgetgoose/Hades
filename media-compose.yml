@@ -43,7 +43,7 @@ services:
       - ${NAS}/usenet:/data/usenet
       - ${LOCAL}/config/sabnzbd:/config 
     ports:
-      - 8080:8080
+      - 8085:8080
   # Sonarr: Auto download new episodes of TV
   sonarr:
     container_name: sonarr
