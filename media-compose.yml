@@ -29,141 +29,7 @@ services:
     volumes:
       - ${LOCAL}/config/organizr:/config
     ports:
-      - 8079:80
-  # sabNZB: NZB Downloader client
-  sabnzbd:
-    container_name: sabnzbd
-    image: linuxserver/sabnzbd:latest
-    restart: unless-stopped
-    environment:
-      - PUID=${PUID} 
-      - PGID=${PGID} 
-      - TZ=${TZ}
-    volumes:
-      - ${NAS}/usenet:/data/usenet
-      - ${LOCAL}/config/sabnzbd:/config 
-    ports:
-      - 8085:8080
-  # Sonarr: Auto download new episodes of TV
-  sonarr:
-    container_name: sonarr
-    image: linuxserver/sonarr:latest
-    restart: unless-stopped
-    network_mode: host
-    environment:
-      - PUID=${PUID} 
-      - PGID=${PGID} 
-      - TZ=${TZ} 
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - ${LOCAL}/config/sonarr:/config 
-      - ${NAS}:/data
-    ports:
-      - 8989:8989
-  # Radarr: Auto download new Movies
-  radarr:
-    container_name: radarr
-    image: linuxserver/radarr:latest
-    restart: unless-stopped
-    network_mode: host
-    environment:
-      - PUID=${PUID} 
-      - PGID=${PGID} 
-      - TZ=${TZ} 
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - ${LOCAL}/config/radarr:/config 
-      - ${NAS}:/data
-    ports:
-      - 7878:7878
-  lidarr:
-    container_name: lidarr
-    image: lscr.io/linuxserver/lidarr:latest
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=${TZ}
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - ${LOCAL}/config/lidarr:/config 
-      - ${NAS}:/data
-    ports:
-      - 8686:8686
-    restart: unless-stopped 
-  # Jellyfin: Media Server like Plex
-  jellyfin:
-    container_name: jellyfin
-    image: jellyfin/jellyfin:latest
-    restart: unless-stopped
-    environment: 
-      - PUID=${PUID} 
-      - PGID=${PGID}
-    ports:
-      - 8096:8096
-    network_mode: "host"
-    volumes:
-      - ${LOCAL}/config/jellyfin:/config
-      - ${LOCAL}/jellyfin_cache:/cache
-      - ${NAS}/media:/data/media
-  # Ombi: Request system in order to ask for a show/movie to be downloaded
-  ombi:
-    container_name: ombi
-    image: lscr.io/linuxserver/ombi:latest
-    restart: unless-stopped
-    environment:
-      - PUID=${PUID} 
-      - PGID=${PGID} 
-      - TZ=${TZ}
-      - BASE_URL=/ombi
-    volumes:
-      - ${LOCAL}/config/ombi:/config
-    ports:
-      - 5000:3579
-  # VPN to Mullvad for safe torrenting
-  openvpn:
-    container_name: openvpn
-    image: dperson/openvpn-client:latest
-    cap_add:
-     - net_admin
-    restart: unless-stopped
-    volumes:
-     - /dev/net:/dev/net:z
-     - ${LOCAL}/config/openvpn:/vpn
-    sysctls:
-     - net.ipv6.conf.all.disable_ipv6=0
-    security_opt:
-     - label:disable
-    ports:
-     - 8112:8112
-     - 6881:6881
-     - 6881:6881/udp
-    command: "-r 192.168.0.0/24"
-  # Torrent Client, connected to VPN client above
-  qbittorrent:
-    image: lscr.io/linuxserver/qbittorrent:latest
-    container_name: qbittorrent
-    network_mode: service:openvpn
-    environment:
-      - PUID=${PUID} 
-      - PGID=${PGID} 
-      - TZ=${TZ}
-      - WEBUI_PORT=8112
-    volumes:
-      - ${LOCAL}/config/qbittorrent:/config
-      - ${NAS}/torrents:/data/torrents
-    restart: unless-stopped
-  jackett:
-    image: lscr.io/linuxserver/jackett:latest
-    container_name: jackett
-    environment:
-      - PUID=${PUID} 
-      - PGID=${PGID} 
-      - TZ=${TZ}
-    volumes:
-      - ${LOCAL}/config/jackett:/config
-    ports:
-      - 9117:9117
-    restart: unless-stopped
+      - 8079:80      
   calibre-web:
     image: lscr.io/linuxserver/calibre-web:latest
     container_name: calibre-web
@@ -191,3 +57,138 @@ services:
     ports:
       - 8078:80
     restart: unless-stopped
+
+  # sabNZB: NZB Downloader client
+  # sabnzbd:
+  #   container_name: sabnzbd
+  #   image: linuxserver/sabnzbd:latest
+  #   restart: unless-stopped
+  #   environment:
+  #     - PUID=${PUID} 
+  #     - PGID=${PGID} 
+  #     - TZ=${TZ}
+  #   volumes:
+  #     - ${NAS}/usenet:/data/usenet
+  #     - ${LOCAL}/config/sabnzbd:/config 
+  #   ports:
+  #     - 8085:8080
+  # # Sonarr: Auto download new episodes of TV
+  # sonarr:
+  #   container_name: sonarr
+  #   image: linuxserver/sonarr:latest
+  #   restart: unless-stopped
+  #   network_mode: host
+  #   environment:
+  #     - PUID=${PUID} 
+  #     - PGID=${PGID} 
+  #     - TZ=${TZ} 
+  #   volumes:
+  #     - /etc/localtime:/etc/localtime:ro
+  #     - ${LOCAL}/config/sonarr:/config 
+  #     - ${NAS}:/data
+  #   ports:
+  #     - 8989:8989
+  # # Radarr: Auto download new Movies
+  # radarr:
+  #   container_name: radarr
+  #   image: linuxserver/radarr:latest
+  #   restart: unless-stopped
+  #   network_mode: host
+  #   environment:
+  #     - PUID=${PUID} 
+  #     - PGID=${PGID} 
+  #     - TZ=${TZ} 
+  #   volumes:
+  #     - /etc/localtime:/etc/localtime:ro
+  #     - ${LOCAL}/config/radarr:/config 
+  #     - ${NAS}:/data
+  #   ports:
+  #     - 7878:7878
+  # lidarr:
+  #   container_name: lidarr
+  #   image: lscr.io/linuxserver/lidarr:latest
+  #   environment:
+  #     - PUID=1000
+  #     - PGID=1000
+  #     - TZ=${TZ}
+  #   volumes:
+  #     - /etc/localtime:/etc/localtime:ro
+  #     - ${LOCAL}/config/lidarr:/config 
+  #     - ${NAS}:/data
+  #   ports:
+  #     - 8686:8686
+  #   restart: unless-stopped 
+  # # Jellyfin: Media Server like Plex
+  # jellyfin:
+  #   container_name: jellyfin
+  #   image: jellyfin/jellyfin:latest
+  #   restart: unless-stopped
+  #   environment: 
+  #     - PUID=${PUID} 
+  #     - PGID=${PGID}
+  #   ports:
+  #     - 8096:8096
+  #   network_mode: "host"
+  #   volumes:
+  #     - ${LOCAL}/config/jellyfin:/config
+  #     - ${LOCAL}/jellyfin_cache:/cache
+  #     - ${NAS}/media:/data/media
+  # # Ombi: Request system in order to ask for a show/movie to be downloaded
+  # ombi:
+  #   container_name: ombi
+  #   image: lscr.io/linuxserver/ombi:latest
+  #   restart: unless-stopped
+  #   environment:
+  #     - PUID=${PUID} 
+  #     - PGID=${PGID} 
+  #     - TZ=${TZ}
+  #     - BASE_URL=/ombi
+  #   volumes:
+  #     - ${LOCAL}/config/ombi:/config
+  #   ports:
+  #     - 5000:3579
+  # # VPN to Mullvad for safe torrenting
+  # openvpn:
+  #   container_name: openvpn
+  #   image: dperson/openvpn-client:latest
+  #   cap_add:
+  #    - net_admin
+  #   restart: unless-stopped
+  #   volumes:
+  #    - /dev/net:/dev/net:z
+  #    - ${LOCAL}/config/openvpn:/vpn
+  #   sysctls:
+  #    - net.ipv6.conf.all.disable_ipv6=0
+  #   security_opt:
+  #    - label:disable
+  #   ports:
+  #    - 8112:8112
+  #    - 6881:6881
+  #    - 6881:6881/udp
+  #   command: "-r 192.168.0.0/24"
+  # # Torrent Client, connected to VPN client above
+  # qbittorrent:
+  #   image: lscr.io/linuxserver/qbittorrent:latest
+  #   container_name: qbittorrent
+  #   network_mode: service:openvpn
+  #   environment:
+  #     - PUID=${PUID} 
+  #     - PGID=${PGID} 
+  #     - TZ=${TZ}
+  #     - WEBUI_PORT=8112
+  #   volumes:
+  #     - ${LOCAL}/config/qbittorrent:/config
+  #     - ${NAS}/torrents:/data/torrents
+  #   restart: unless-stopped
+  # jackett:
+  #   image: lscr.io/linuxserver/jackett:latest
+  #   container_name: jackett
+  #   environment:
+  #     - PUID=${PUID} 
+  #     - PGID=${PGID} 
+  #     - TZ=${TZ}
+  #   volumes:
+  #     - ${LOCAL}/config/jackett:/config
+  #   ports:
+  #     - 9117:9117
+  #   restart: unless-stopped
